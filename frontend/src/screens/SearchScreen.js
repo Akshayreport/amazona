@@ -125,6 +125,7 @@ export default function SearchScreen() {
     const filterRating = filter.rating || rating;
     const filterPrice = filter.price || price;
     const sortOrder = filter.order || order;
+    console.log();
     return `${
       skipPathname ? '' : '/search?'
     }category=${filterCategory}&query=${filterQuery}&price=${filterPrice}&rating=${filterRating}&order=${sortOrder}&page=${filterPage}`;
@@ -267,8 +268,7 @@ export default function SearchScreen() {
                     key={x + 1}
                     className="mx-1"
                     to={{
-                      pathname: '/search',
-                      seacrh: getFilterUrl({ page: x + 1 }, true),
+                      pathname: '/search' + getFilterUrl({ page: x + 1 }, true),
                     }}
                   >
                     <Button
