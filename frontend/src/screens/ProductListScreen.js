@@ -6,15 +6,14 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import { toast } from 'react-toastify';
 import { Store } from '../Store';
-import MessageBox from '../components/MessageBox';
 import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
 
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true };
-
     case 'FETCH_SUCCESS':
       return {
         ...state,
@@ -23,19 +22,17 @@ const reducer = (state, action) => {
         pages: action.payload.pages,
         loading: false,
       };
-
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
-
     case 'CREATE_REQUEST':
       return { ...state, loadingCreate: true };
-
     case 'CREATE_SUCCESS':
-      return { ...state, loadingCreate: false };
-
+      return {
+        ...state,
+        loadingCreate: false,
+      };
     case 'CREATE_FAIL':
       return { ...state, loadingCreate: false };
-
     default:
       return state;
   }
@@ -64,15 +61,13 @@ export default function ProductListScreen() {
         });
 
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
-      } catch {}
+      } catch (err) {}
     };
-
     fetchData();
   }, [page, userInfo]);
 
   const createHandler = async () => {
-    if (window.confirm('Are you sure you want to create product?')) {
-      dispatch({ type: 'CREATE_REQUEST' });
+    if (window.confirm('Are you sure to create?')) {
       try {
         dispatch({ type: 'CREATE_REQUEST' });
         const { data } = await axios.post(
@@ -82,7 +77,8 @@ export default function ProductListScreen() {
             headers: { Authorization: `Bearer ${userInfo.token}` },
           }
         );
-        toast.success('Product created Successfully');
+        toast.success('product created successfully');
+        dispatch({ type: 'CREATE_SUCCESS' });
         navigate(`/admin/product/${data.product._id}`);
       } catch (err) {
         toast.error(getError(error));
@@ -92,12 +88,10 @@ export default function ProductListScreen() {
       }
     }
   };
-
   return (
     <div>
       <Row>
         <Col>
-          {' '}
           <h1>Products</h1>
         </Col>
         <Col className="col text-end">
@@ -121,10 +115,11 @@ export default function ProductListScreen() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Category</th>
-                <th>Brand</th>
+                <th>NAME</th>
+                <th>PRICE</th>
+                <th>CATEGORY</th>
+                <th>BRAND</th>
+                <th>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -135,6 +130,15 @@ export default function ProductListScreen() {
                   <td>{product.price}</td>
                   <td>{product.category}</td>
                   <td>{product.brand}</td>
+                  <td>
+                    <Button
+                      type="button"
+                      variant="light"
+                      onClick={() => navigate(`/admin/product/${product._id}`)}
+                    >
+                      Edit
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
