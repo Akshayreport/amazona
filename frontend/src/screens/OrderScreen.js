@@ -29,22 +29,21 @@ function reducer(state, action) {
       return { ...state, loadingPay: false, successPay: true };
     case 'PAY_FAIL':
       return { ...state, loadingPay: false };
-
     case 'PAY_RESET':
       return { ...state, loadingPay: false, successPay: false };
 
     case 'DELIVER_REQUEST':
       return { ...state, loadingDeliver: true };
-
     case 'DELIVER_SUCCESS':
       return { ...state, loadingDeliver: false, successDeliver: true };
-
     case 'DELIVER_FAIL':
       return { ...state, loadingDeliver: false };
-
     case 'DELIVER_RESET':
-      return { ...state, loadingDeliver: false, successDeliver: false };
-
+      return {
+        ...state,
+        loadingDeliver: false,
+        successDeliver: false,
+      };
     default:
       return state;
   }
@@ -111,7 +110,6 @@ export default function OrderScreen() {
       }
     });
   }
-
   function onError(err) {
     toast.error(getError(err));
   }
@@ -146,7 +144,7 @@ export default function OrderScreen() {
         dispatch({ type: 'DELIVER_RESET' });
       }
     } else {
-      const loadPayPalScript = async () => {
+      const loadPaypalScript = async () => {
         const { data: clientId } = await axios.get('/api/keys/paypal', {
           headers: { authorization: `Bearer ${userInfo.token}` },
         });
@@ -159,7 +157,7 @@ export default function OrderScreen() {
         });
         paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
-      loadPayPalScript();
+      loadPaypalScript();
     }
   }, [
     order,
@@ -174,7 +172,6 @@ export default function OrderScreen() {
   async function deliverOrderHandler() {
     try {
       dispatch({ type: 'DELIVER_REQUEST' });
-
       const { data } = await axios.put(
         `/api/orders/${order._id}/deliver`,
         {},
@@ -182,7 +179,6 @@ export default function OrderScreen() {
           headers: { authorization: `Bearer ${userInfo.token}` },
         }
       );
-
       dispatch({ type: 'DELIVER_SUCCESS', payload: data });
       toast.success('Order is delivered');
     } catch (err) {
@@ -211,6 +207,16 @@ export default function OrderScreen() {
                 <strong>Address: </strong> {order.shippingAddress.address},
                 {order.shippingAddress.city}, {order.shippingAddress.postalCode}
                 ,{order.shippingAddress.country}
+                &nbsp;
+                {order.shippingAddress.location &&
+                  order.shippingAddress.location.lat && (
+                    <a
+                      target="_new"
+                      href={`https://maps.google.com?q=${order.shippingAddress.location.lat},${order.shippingAddress.location.lng}`}
+                    >
+                      Show On Map
+                    </a>
+                  )}
               </Card.Text>
               {order.isDelivered ? (
                 <MessageBox variant="success">
@@ -299,7 +305,7 @@ export default function OrderScreen() {
                 {!order.isPaid && (
                   <ListGroup.Item>
                     {isPending ? (
-                      <LoadingBox></LoadingBox>
+                      <LoadingBox />
                     ) : (
                       <div>
                         <PayPalButtons
@@ -312,7 +318,6 @@ export default function OrderScreen() {
                     {loadingPay && <LoadingBox></LoadingBox>}
                   </ListGroup.Item>
                 )}
-
                 {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
                   <ListGroup.Item>
                     {loadingDeliver && <LoadingBox></LoadingBox>}
