@@ -3,8 +3,11 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   LoadScript,
   GoogleMap,
+  isLoaded,
   StandaloneSearchBox,
   MarkerF,
+  useLoadScript,
+  useJsApiLoader,
 } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 import { Store } from '../Store';
@@ -48,6 +51,7 @@ export default function MapScreen() {
         headers: { Authorization: `BEARER ${userInfo.token}` },
       });
       setGoogleApiKey(data.key);
+
       getUserCurrentLocation();
     };
 
@@ -96,6 +100,7 @@ export default function MapScreen() {
     toast.success('location selected successfully.');
     navigate('/shipping');
   };
+
   return (
     <div className="full-box">
       <LoadScript libraries={libs} googleMapsApiKey={googleApiKey}>
